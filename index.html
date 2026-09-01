@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevalidaPrep — Banco de questões do Revalida (INEP)</title>
+<meta name="description" content="Pratique para o Revalida com questões de provas anteriores do INEP, organizadas por especialidade e por ano, com explicação de cada alternativa. Crie sua conta e acompanhe seu progresso.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://deft-pie-883833.netlify.app/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RevalidaPrep">
+<meta property="og:title" content="RevalidaPrep — Banco de questões do Revalida (INEP)">
+<meta property="og:description" content="Pratique para o Revalida com questões de provas anteriores do INEP, organizadas por especialidade e por ano, com explicação de cada alternativa.">
+<meta property="og:url" content="https://deft-pie-883833.netlify.app/">
+<meta property="og:locale" content="pt_BR">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RevalidaPrep — Banco de questões do Revalida (INEP)">
+<meta name="twitter:description" content="Pratique para o Revalida com questões de provas anteriores do INEP, organizadas por especialidade e por ano, com explicação de cada alternativa.">
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <h1>RevalidaPrep</h1>
+    <p class="auth-sub">Entre com seu e-mail e senha para salvar seu progresso.</p>
+    <div id="auth-error" class="auth-error" style="display:none"></div>
+    <input id="auth-email" type="email" placeholder="E-mail" autocomplete="email">
+    <input id="auth-password" type="password" placeholder="Senha" autocomplete="current-password">
+    <button id="auth-login-btn" class="primary auth-btn">Entrar</button>
+    <button id="auth-signup-btn" class="ghost auth-btn">Criar conta</button>
+    <div class="auth-divider"><span>ou</span></div>
+    <button id="auth-google-btn" class="google-btn">Continuar com Google</button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header class="top">
+    <h1>RevalidaPrep</h1>
+    <span class="tag">Banco de questões do Revalida (INEP) &mdash; pratique por tema e por ano</span>
+    <div class="user-bar" id="user-bar" style="display:none">
+      <span id="user-email"></span>
+      <button id="logout-btn">Sair</button>
+    </div>
+  </header>
+
+  <aside class="filters">
+    <h2>Ano / Edição</h2>
+    <div class="filter-actions">
+      <button id="years-all">Todos</button>
+      <button id="years-none">Nenhum</button>
+    </div>
+    <div class="check-list" id="year-list"></div>
+
+    <h2>Especialidade</h2>
+    <div class="filter-actions">
+      <button id="specs-all">Todas</button>
+      <button id="specs-none">Nenhuma</button>
+    </div>
+    <div class="check-list" id="spec-list"></div>
+
+    <h2>Status</h2>
+    <div class="check-list" id="status-list"></div>
+    <button id="reset-progress-btn" class="reset-btn">Reiniciar progresso</button>
+  </aside>
+
+  <main class="content">
+    <div id="sync-error" class="sync-error" style="display:none"></div>
+    <div class="status-bar">
+      <div class="pool-info" id="pool-info">Carregando questões&hellip;</div>
+      <div class="global-stats" id="global-stats"></div>
+      <div class="score" id="score-box">Acertos: <span class="ok">0</span> &nbsp;|&nbsp; Erros: <span class="bad">0</span></div>
+    </div>
+
+    <div class="mode-row">
+      <button id="mode-random" class="active">Aleatório</button>
+      <button id="mode-sequential">Sequencial</button>
+      <button id="shuffle-btn" title="Embaralhar de novo">Embaralhar de novo</button>
+    </div>
+
+    <div id="empty-state" style="display:none">
+      Não há questões para os filtros selecionados. Tente ativar mais anos ou especialidades.
+    </div>
+
+    <div class="card" id="question-card" style="display:none">
+      <div class="meta">
+        <span class="pill" id="q-edition"></span>
+        <span class="pill alt" id="q-area"></span>
+        <span class="pill alt" id="q-specialty"></span>
+        <span class="pill alt" id="q-number"></span>
+      </div>
+      <div class="stem" id="q-stem"></div>
+      <div class="options" id="q-options"></div>
+      <div class="explain" id="q-explain" style="display:none"></div>
+      <div class="actions-row">
+        <button class="ghost" id="skip-btn">Pular questão</button>
+        <button class="primary" id="submit-btn" disabled>Responder</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="data/data.js"></script>
+<script src="app.js"></script>
+<script type="module" src="auth.js"></script>
+</body>
+</html>

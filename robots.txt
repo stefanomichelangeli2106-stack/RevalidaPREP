@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://deft-pie-883833.netlify.app/sitemap.xml
