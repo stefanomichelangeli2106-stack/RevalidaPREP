@@ -102,10 +102,21 @@ header.top .tag {
   background: var(--panel);
   border-radius: 20px;
   box-shadow: var(--shadow-lg);
-  padding: 32px 30px 30px;
+  padding: 36px 30px 30px;
   text-align: center;
   position: relative;
   z-index: 1;
+  overflow: hidden;
+}
+
+.welcome-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #0f9b4e 0%, #0f9b4e 33%, #ffcc29 33%, #ffcc29 66%, #1a3d8f 66%, #1a3d8f 100%);
 }
 
 .welcome-card h1 {
@@ -143,13 +154,15 @@ header.top .tag {
   position: absolute;
   left: 0;
   top: 0;
-  color: var(--ink);
+  color: #0f9b4e;
   font-weight: 700;
 }
 
-.welcome-btn {
+.welcome-btn.primary {
   width: 100%;
+  background: #0f9b4e;
 }
+.welcome-btn.primary:hover { background: #0c7d3f; opacity: 1; }
 
 @media (max-width: 560px) {
   .welcome-card { margin-top: -24px; }
