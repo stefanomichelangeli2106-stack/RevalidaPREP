@@ -24,7 +24,65 @@
 </head>
 <body>
 
-<div id="auth-screen" class="auth-screen">
+<div id="welcome-screen" class="welcome-screen">
+  <div class="welcome-hero">
+    <svg class="welcome-illustration" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração do Rio de Janeiro ao entardecer, com o Cristo Redentor e o Pão de Açúcar">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#241b3d"/>
+          <stop offset="45%" stop-color="#8a3b6b"/>
+          <stop offset="75%" stop-color="#f2794f"/>
+          <stop offset="100%" stop-color="#ffd36b"/>
+        </linearGradient>
+        <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3a2440"/>
+          <stop offset="100%" stop-color="#160f22"/>
+        </linearGradient>
+        <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fff3c4"/>
+          <stop offset="100%" stop-color="#ffb347"/>
+        </radialGradient>
+      </defs>
+
+      <rect x="0" y="0" width="800" height="420" fill="url(#skyGrad)"/>
+      <circle cx="560" cy="300" r="70" fill="url(#sunGrad)" opacity="0.9"/>
+
+      <!-- birds -->
+      <path d="M120 70 q10 -10 20 0 q10 -10 20 0" fill="none" stroke="#160f22" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+      <path d="M180 100 q8 -8 16 0 q8 -8 16 0" fill="none" stroke="#160f22" stroke-width="3" stroke-linecap="round" opacity="0.45"/>
+
+      <!-- Pão de Açúcar (right) -->
+      <path d="M520 320 Q 560 190 640 175 Q 720 190 760 320 Z" fill="#1b1330" opacity="0.92"/>
+      <path d="M470 320 Q 505 240 560 225 Q 615 240 640 320 Z" fill="#241a3d" opacity="0.92"/>
+
+      <!-- Corcovado hill (left) with Cristo Redentor -->
+      <path d="M0 320 Q 90 200 190 175 Q 260 165 330 320 Z" fill="#1b1330"/>
+      <g transform="translate(190,80)">
+        <rect x="-6" y="30" width="12" height="90" fill="#0e0a18"/>
+        <rect x="-70" y="55" width="140" height="10" rx="5" fill="#0e0a18"/>
+        <path d="M-6 30 q6 -22 12 0 z" fill="#0e0a18"/>
+      </g>
+
+      <!-- sea -->
+      <rect x="0" y="320" width="800" height="100" fill="url(#seaGrad)"/>
+      <path d="M0 336 q40 10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0" fill="none" stroke="#ffd36b" stroke-width="2" opacity="0.35"/>
+      <path d="M0 356 q40 10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0" fill="none" stroke="#ffb347" stroke-width="2" opacity="0.25"/>
+    </svg>
+  </div>
+
+  <div class="welcome-card">
+    <h1>RevalidaPrep</h1>
+    <p class="welcome-tagline">Sua preparação para o Revalida, questão por questão.</p>
+    <ul class="welcome-list">
+      <li>Provas objetivas anteriores do INEP, organizadas por <strong>ano</strong> e por <strong>especialidade</strong>.</li>
+      <li>Justificativa da resposta correta em cada questão, para você entender o porquê.</li>
+      <li>Seu progresso fica salvo na sua conta — pratique de onde parou, em qualquer dispositivo.</li>
+    </ul>
+    <button id="welcome-start-btn" class="primary welcome-btn">Começar agora</button>
+  </div>
+</div>
+
+<div id="auth-screen" class="auth-screen" style="display:none">
   <div class="auth-card">
     <h1>RevalidaPrep</h1>
     <p class="auth-sub">Entre com seu e-mail e senha para salvar seu progresso.</p>

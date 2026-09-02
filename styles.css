@@ -75,6 +75,86 @@ header.top .tag {
 }
 .user-bar #logout-btn:hover { background: rgba(255, 255, 255, 0.1); }
 
+.welcome-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #160f22;
+}
+
+.welcome-hero {
+  width: 100%;
+  line-height: 0;
+}
+
+.welcome-illustration {
+  width: 100%;
+  height: auto;
+  max-height: 42vh;
+  display: block;
+}
+
+.welcome-card {
+  width: 100%;
+  max-width: 480px;
+  margin: -36px 20px 40px;
+  background: var(--panel);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  padding: 32px 30px 30px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-card h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+}
+
+.welcome-tagline {
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  color: var(--text-dim);
+}
+
+.welcome-list {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.welcome-list li {
+  font-size: 13.8px;
+  line-height: 1.5;
+  color: var(--text);
+  padding-left: 22px;
+  position: relative;
+}
+
+.welcome-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.welcome-btn {
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .welcome-card { margin-top: -24px; }
+}
+
 .auth-screen {
   min-height: 100vh;
   display: flex;

@@ -29,6 +29,8 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
 
+const welcomeScreenEl = document.getElementById("welcome-screen");
+const welcomeStartBtn = document.getElementById("welcome-start-btn");
 const authScreenEl = document.getElementById("auth-screen");
 const appEl = document.getElementById("app");
 const userBarEl = document.getElementById("user-bar");
@@ -116,6 +118,11 @@ logoutBtn.addEventListener("click", async () => {
   location.reload();
 });
 
+welcomeStartBtn.addEventListener("click", () => {
+  welcomeScreenEl.style.display = "none";
+  authScreenEl.style.display = "flex";
+});
+
 [emailInput, passwordInput].forEach((input) => {
   input.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter") { ev.preventDefault(); loginBtn.click(); }
@@ -126,7 +133,8 @@ let appStarted = false;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    authScreenEl.style.display = "flex";
+    welcomeScreenEl.style.display = "flex";
+    authScreenEl.style.display = "none";
     appEl.style.display = "none";
     userBarEl.style.display = "none";
     return;
@@ -134,6 +142,7 @@ onAuthStateChanged(auth, async (user) => {
   if (appStarted) return;
   appStarted = true;
 
+  welcomeScreenEl.style.display = "none";
   authScreenEl.style.display = "none";
   appEl.style.display = "grid";
   userBarEl.style.display = "flex";
