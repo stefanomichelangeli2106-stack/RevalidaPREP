@@ -460,6 +460,7 @@ aside.filters h2 {
   transition: background 0.12s;
 }
 .check-item:hover { background: rgba(15, 155, 78, 0.08); }
+.check-item.muted { opacity: 0.38; }
 .check-item input {
   accent-color: var(--brand-green);
   width: 15px;

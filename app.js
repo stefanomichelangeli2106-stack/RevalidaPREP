@@ -57,11 +57,33 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     specBadgeEl.classList.toggle("on", activeSpecs.size > 0);
   }
 
+  // Quantas questões cada especialidade tem dentro das edições marcadas.
+  function computeSpecialtyCounts() {
+    const counts = {};
+    specialties.forEach(s => { counts[s] = 0; });
+    ALL_QUESTIONS.forEach(q => {
+      if (activeYears.has(q.edition_label)) counts[q.specialty]++;
+    });
+    return counts;
+  }
+
+  function updateSpecialtyCounts() {
+    const counts = computeSpecialtyCounts();
+    specListEl.querySelectorAll(".check-item").forEach(row => {
+      const countEl = row.querySelector(".count");
+      if (!countEl) return;
+      const n = counts[row.dataset.item] || 0;
+      countEl.textContent = n;
+      row.classList.toggle("muted", n === 0);
+    });
+  }
+
   function buildCheckList(container, items, activeSet, countsMap, onChange) {
     container.innerHTML = "";
     items.forEach(item => {
       const row = document.createElement("label");
       row.className = "check-item";
+      row.dataset.item = item;
       const cb = document.createElement("input");
       cb.type = "checkbox";
       cb.checked = activeSet.has(item);
@@ -108,6 +130,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
 
   function refreshPool() {
     updateFilterBadges();
+    updateSpecialtyCounts();
     const filtered = ALL_QUESTIONS.filter(q =>
       activeYears.has(q.edition_label) &&
       activeSpecs.has(q.specialty) &&
@@ -325,15 +348,16 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
 
   document.getElementById("years-all").addEventListener("click", () => { editions.forEach(e => activeYears.add(e)); buildCheckList(yearListEl, editions, activeYears, editionLabels, refreshPool); refreshPool(); });
   document.getElementById("years-none").addEventListener("click", () => { activeYears.clear(); buildCheckList(yearListEl, editions, activeYears, editionLabels, refreshPool); refreshPool(); });
-  document.getElementById("specs-all").addEventListener("click", () => { specialties.forEach(s => activeSpecs.add(s)); buildCheckList(specListEl, specialties, activeSpecs, specialtyCounts, refreshPool); refreshPool(); });
-  document.getElementById("specs-none").addEventListener("click", () => { activeSpecs.clear(); buildCheckList(specListEl, specialties, activeSpecs, specialtyCounts, refreshPool); refreshPool(); });
+  document.getElementById("specs-all").addEventListener("click", () => { specialties.forEach(s => activeSpecs.add(s)); buildCheckList(specListEl, specialties, activeSpecs, computeSpecialtyCounts(), refreshPool); refreshPool(); });
+  document.getElementById("specs-none").addEventListener("click", () => { activeSpecs.clear(); buildCheckList(specListEl, specialties, activeSpecs, computeSpecialtyCounts(), refreshPool); refreshPool(); });
 
   buildCheckList(yearListEl, editions, activeYears, editionLabels, refreshPool);
-  buildCheckList(specListEl, specialties, activeSpecs, specialtyCounts, refreshPool);
+  buildCheckList(specListEl, specialties, activeSpecs, computeSpecialtyCounts(), refreshPool);
   buildStatusFilter();
   updateScoreBox();
   updateGlobalStats();
   updateFilterBadges();
+  updateSpecialtyCounts();
 
   if (ALL_QUESTIONS.length === 0) {
     poolInfoEl.textContent = "Sem questões carregadas";
