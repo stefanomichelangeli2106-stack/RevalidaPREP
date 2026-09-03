@@ -41,11 +41,12 @@ const successEl = document.getElementById("auth-success");
 const emailInput = document.getElementById("auth-email");
 const passwordInput = document.getElementById("auth-password");
 const passwordConfirmInput = document.getElementById("auth-password-confirm");
-const loginBtn = document.getElementById("auth-login-btn");
-const signupBtn = document.getElementById("auth-signup-btn");
+const submitBtn = document.getElementById("auth-submit-btn");
+const toggleModeBtn = document.getElementById("auth-toggle-mode-btn");
 const forgotBtn = document.getElementById("auth-forgot-btn");
 const googleBtn = document.getElementById("auth-google-btn");
 const logoutBtn = document.getElementById("logout-btn");
+const authSubText = document.getElementById("auth-sub-text");
 
 function showError(msg) {
   successEl.style.display = "none";
@@ -66,7 +67,7 @@ function clearSuccess() {
   successEl.textContent = "";
 }
 function setButtonsDisabled(disabled) {
-  [loginBtn, signupBtn, googleBtn, forgotBtn].forEach((b) => { b.disabled = disabled; });
+  [submitBtn, googleBtn, forgotBtn, toggleModeBtn].forEach((b) => { b.disabled = disabled; });
 }
 
 const ERROR_MESSAGES = {
@@ -86,7 +87,33 @@ function translateError(err) {
   return ERROR_MESSAGES[err && err.code] || "Ocorreu um erro. Tente novamente.";
 }
 
-loginBtn.addEventListener("click", async () => {
+let mode = "login";
+
+function applyMode() {
+  clearError();
+  clearSuccess();
+  if (mode === "login") {
+    passwordConfirmInput.style.display = "none";
+    passwordConfirmInput.value = "";
+    submitBtn.textContent = "Entrar";
+    toggleModeBtn.textContent = "Criar uma conta";
+    forgotBtn.style.display = "";
+    authSubText.textContent = "Entre com seu e-mail e senha para salvar seu progresso.";
+  } else {
+    passwordConfirmInput.style.display = "";
+    submitBtn.textContent = "Criar conta";
+    toggleModeBtn.textContent = "Já tenho conta, entrar";
+    forgotBtn.style.display = "none";
+    authSubText.textContent = "Crie sua conta gratuita para salvar seu progresso em qualquer dispositivo.";
+  }
+}
+
+toggleModeBtn.addEventListener("click", () => {
+  mode = mode === "login" ? "signup" : "login";
+  applyMode();
+});
+
+async function doLogin() {
   clearError();
   clearSuccess();
   const email = emailInput.value.trim();
@@ -100,9 +127,9 @@ loginBtn.addEventListener("click", async () => {
   } finally {
     setButtonsDisabled(false);
   }
-});
+}
 
-signupBtn.addEventListener("click", async () => {
+async function doSignup() {
   clearError();
   clearSuccess();
   const email = emailInput.value.trim();
@@ -124,6 +151,10 @@ signupBtn.addEventListener("click", async () => {
   } finally {
     setButtonsDisabled(false);
   }
+}
+
+submitBtn.addEventListener("click", () => {
+  if (mode === "login") { doLogin(); } else { doSignup(); }
 });
 
 forgotBtn.addEventListener("click", async () => {
@@ -163,15 +194,13 @@ logoutBtn.addEventListener("click", async () => {
 welcomeStartBtn.addEventListener("click", () => {
   welcomeScreenEl.style.display = "none";
   authScreenEl.style.display = "flex";
+  applyMode();
 });
 
-[emailInput, passwordInput].forEach((input) => {
+[emailInput, passwordInput, passwordConfirmInput].forEach((input) => {
   input.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter") { ev.preventDefault(); loginBtn.click(); }
+    if (ev.key === "Enter") { ev.preventDefault(); submitBtn.click(); }
   });
-});
-passwordConfirmInput.addEventListener("keydown", (ev) => {
-  if (ev.key === "Enter") { ev.preventDefault(); signupBtn.click(); }
 });
 
 let appStarted = false;
