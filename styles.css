@@ -682,6 +682,26 @@ main.content {
   margin-bottom: 20px;
 }
 
+.q-images {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 20px;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 3px;
+  overflow: hidden;
+}
+.q-images img {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  background: #0a0a0a;
+  border-radius: 10px;
+}
+
 .options {
   display: flex;
   flex-direction: column;

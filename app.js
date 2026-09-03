@@ -214,6 +214,17 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     document.getElementById("q-number").textContent = "Questão " + q.number;
     document.getElementById("q-stem").textContent = q.stem;
 
+    const imagesEl = document.getElementById("q-images");
+    if (q.images && q.images.length) {
+      imagesEl.innerHTML = q.images.map(src =>
+        '<img src="' + escapeHtml(src) + '" alt="Imagem da questão ' + q.number + '" loading="lazy">'
+      ).join("");
+      imagesEl.style.display = "flex";
+    } else {
+      imagesEl.innerHTML = "";
+      imagesEl.style.display = "none";
+    }
+
     const optionsEl = document.getElementById("q-options");
     optionsEl.innerHTML = "";
     const letters = Object.keys(q.options).sort();
