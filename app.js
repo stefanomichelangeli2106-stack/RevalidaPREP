@@ -20,11 +20,14 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   const yearListEl = document.getElementById("year-list");
   const specListEl = document.getElementById("spec-list");
   const statusListEl = document.getElementById("status-list");
+  const yearBadgeEl = document.getElementById("year-badge");
+  const specBadgeEl = document.getElementById("spec-badge");
   const poolInfoEl = document.getElementById("pool-info");
   const globalStatsEl = document.getElementById("global-stats");
   const scoreBoxEl = document.getElementById("score-box");
   const cardEl = document.getElementById("question-card");
   const emptyEl = document.getElementById("empty-state");
+  const emptyTextEl = document.getElementById("empty-text");
 
   function uniqueSorted(arr) {
     return Array.from(new Set(arr)).sort();
@@ -42,9 +45,17 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   ALL_QUESTIONS.forEach(q => { specialtyCounts[q.specialty] = (specialtyCounts[q.specialty] || 0) + 1; });
   const specialties = uniqueSorted(Object.keys(specialtyCounts));
 
-  const activeYears = new Set(editions);
-  const activeSpecs = new Set(specialties);
+  // Os filtros de conteúdo começam vazios: o usuário escolhe o que quer praticar.
+  const activeYears = new Set();
+  const activeSpecs = new Set();
   const activeStatus = new Set(["nueva", "acertada", "fallada"]);
+
+  function updateFilterBadges() {
+    yearBadgeEl.textContent = activeYears.size;
+    yearBadgeEl.classList.toggle("on", activeYears.size > 0);
+    specBadgeEl.textContent = activeSpecs.size;
+    specBadgeEl.classList.toggle("on", activeSpecs.size > 0);
+  }
 
   function buildCheckList(container, items, activeSet, countsMap, onChange) {
     container.innerHTML = "";
@@ -87,15 +98,16 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   function updateGlobalStats() {
     const answered = Object.keys(progress).length;
     if (answered === 0) {
-      globalStatsEl.textContent = "Ainda sem respostas registradas";
+      globalStatsEl.textContent = "Sem respostas ainda";
       return;
     }
     const correct = Object.values(progress).filter(r => r.correct).length;
     const pct = Math.round((correct / answered) * 100);
-    globalStatsEl.textContent = "Progresso total: " + answered + " respondidas · " + pct + "% de acerto";
+    globalStatsEl.textContent = answered + " respondidas · " + pct + "% de acerto";
   }
 
   function refreshPool() {
+    updateFilterBadges();
     const filtered = ALL_QUESTIONS.filter(q =>
       activeYears.has(q.edition_label) &&
       activeSpecs.has(q.specialty) &&
@@ -103,7 +115,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     );
     state.queue = state.mode === "random" ? shuffle(filtered.slice()) : filtered.slice();
     state.pointer = -1;
-    poolInfoEl.textContent = filtered.length + (filtered.length === 1 ? " questão" : " questões") + " no filtro atual";
+    poolInfoEl.textContent = filtered.length + (filtered.length === 1 ? " questão" : " questões");
     nextQuestion();
   }
 
@@ -146,18 +158,20 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   }
 
   function updateScoreBox() {
-    scoreBoxEl.innerHTML = 'Acertos: <span class="ok">' + state.sessionRight + '</span> &nbsp;|&nbsp; Erros: <span class="bad">' + state.sessionWrong + '</span>';
+    scoreBoxEl.innerHTML = '<span class="ok">' + state.sessionRight + ' certas</span><span class="bad">' + state.sessionWrong + ' erradas</span>';
   }
 
   function nextQuestion() {
     state.pointer++;
     if (state.pointer >= state.queue.length) {
       cardEl.style.display = "none";
-      emptyEl.style.display = state.queue.length === 0 ? "block" : "block";
+      emptyEl.style.display = "flex";
       if (state.queue.length > 0) {
-        emptyEl.textContent = "Você terminou todas as questões deste filtro. Toque em \"Embaralhar de novo\" para repetir a rodada.";
+        emptyTextEl.textContent = "Você terminou todas as questões deste filtro. Toque em \"Embaralhar\" para repetir a rodada.";
+      } else if (activeYears.size === 0 || activeSpecs.size === 0) {
+        emptyTextEl.textContent = "Selecione pelo menos um ano e uma especialidade na barra lateral para começar a praticar.";
       } else {
-        emptyEl.textContent = "Não há questões para os filtros selecionados. Tente ativar mais anos ou especialidades.";
+        emptyTextEl.textContent = "Não há questões para os filtros selecionados. Tente ativar mais anos, mais especialidades ou outro status em \"Mostrar\".";
       }
       return;
     }
@@ -215,8 +229,9 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     if (!state.selectedLetter) return;
     state.answered = true;
     const q = state.current;
-    const isAnnulled = q.correct === "ANULADA";
-    const isCorrect = !isAnnulled && state.selectedLetter === q.correct;
+    const hasOfficialAnswer = !!q.correct && q.correct !== "ANULADA";
+    const isAnnulled = q.annulled === true || q.correct === "ANULADA";
+    const isCorrect = hasOfficialAnswer && !isAnnulled && state.selectedLetter === q.correct;
 
     if (!isAnnulled) {
       if (isCorrect) { state.sessionRight++; } else { state.sessionWrong++; }
@@ -230,26 +245,30 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     document.querySelectorAll("#q-options .option").forEach(el => {
       el.classList.add("answered");
       const letter = el.dataset.letter;
-      if (!isAnnulled && letter === q.correct) el.classList.add("correct");
-      if (!isAnnulled && letter === state.selectedLetter && letter !== q.correct) el.classList.add("incorrect");
-      if (letter === q.correct && !isAnnulled) {
+      if (hasOfficialAnswer && letter === q.correct) el.classList.add("correct");
+      if (hasOfficialAnswer && letter === state.selectedLetter && letter !== q.correct) el.classList.add("incorrect");
+      if (hasOfficialAnswer && letter === q.correct) {
         el.insertAdjacentHTML("beforeend", '<span class="badge">Correta</span>');
-      } else if (letter === state.selectedLetter && letter !== q.correct && !isAnnulled) {
+      } else if (hasOfficialAnswer && letter === state.selectedLetter && letter !== q.correct) {
         el.insertAdjacentHTML("beforeend", '<span class="badge">Sua resposta</span>');
       }
     });
 
     const explainEl = document.getElementById("q-explain");
     explainEl.style.display = "flex";
-    if (isAnnulled) {
-      explainEl.innerHTML = '<div class="annulled-note">' + escapeHtml(q.explanation_correct || "O INEP anulou esta questão; não há resposta oficial correta.") + "</div>";
-    } else {
-      let html = '<div class="block correct-block"><b>Por que ' + q.correct + ' está correta:</b><br>' + escapeHtml(q.explanation_correct) + "</div>";
+    let html = "";
+    if (hasOfficialAnswer) {
+      if (isAnnulled) {
+        html += '<div class="annulled-note">Esta questão foi anulada oficialmente pelo INEP. A alternativa e a justificativa abaixo indicam a resposta tecnicamente mais correta, mas não contam para sua pontuação.</div>';
+      }
+      html += '<div class="block correct-block"><b>Por que ' + q.correct + ' está correta:</b><br>' + escapeHtml(q.explanation_correct) + "</div>";
       Object.keys(q.explanation_incorrect || {}).sort().forEach(letter => {
         html += '<div class="block incorrect-block"><b>Por que ' + letter + ' está incorreta:</b><br>' + escapeHtml(q.explanation_incorrect[letter]) + "</div>";
       });
-      explainEl.innerHTML = html;
+    } else {
+      html = '<div class="annulled-note">' + escapeHtml(q.explanation_correct || "O INEP anulou esta questão; não há resposta oficial correta.") + "</div>";
     }
+    explainEl.innerHTML = html;
 
     document.getElementById("submit-btn").textContent = "Próxima questão";
     document.getElementById("submit-btn").disabled = false;
@@ -314,9 +333,10 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   buildStatusFilter();
   updateScoreBox();
   updateGlobalStats();
+  updateFilterBadges();
 
   if (ALL_QUESTIONS.length === 0) {
-    poolInfoEl.textContent = "Ainda não há questões carregadas (falta gerar data/data.js).";
+    poolInfoEl.textContent = "Sem questões carregadas";
   } else {
     refreshPool();
   }

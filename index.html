@@ -115,50 +115,86 @@
 
 <div id="app" style="display:none">
   <header class="top">
-    <h1>RevalidaPrep</h1>
-    <span class="tag">Banco de questões do Revalida (INEP) &mdash; pratique por tema e por ano</span>
-    <div class="user-bar" id="user-bar" style="display:none">
-      <span id="user-email"></span>
-      <button id="logout-btn">Sair</button>
+    <div class="top-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div class="brand-text">
+          <h1>RevalidaPrep</h1>
+          <span class="tag">Banco de questões do Revalida &middot; INEP</span>
+        </div>
+      </div>
+      <div class="user-bar" id="user-bar" style="display:none">
+        <span id="user-email"></span>
+        <button id="logout-btn">Sair</button>
+      </div>
     </div>
+    <div class="brand-stripe" aria-hidden="true"></div>
   </header>
 
   <aside class="filters">
-    <h2>Ano / Edição</h2>
-    <div class="filter-actions">
-      <button id="years-all">Todos</button>
-      <button id="years-none">Nenhum</button>
-    </div>
-    <div class="check-list" id="year-list"></div>
+    <section class="filter-group">
+      <div class="filter-head">
+        <h2>Ano / Edição</h2>
+        <span class="filter-badge" id="year-badge">0</span>
+      </div>
+      <div class="filter-actions">
+        <button id="years-all">Todos</button>
+        <button id="years-none">Limpar</button>
+      </div>
+      <div class="check-list" id="year-list"></div>
+    </section>
 
-    <h2>Especialidade</h2>
-    <div class="filter-actions">
-      <button id="specs-all">Todas</button>
-      <button id="specs-none">Nenhuma</button>
-    </div>
-    <div class="check-list" id="spec-list"></div>
+    <section class="filter-group">
+      <div class="filter-head">
+        <h2>Especialidade</h2>
+        <span class="filter-badge" id="spec-badge">0</span>
+      </div>
+      <div class="filter-actions">
+        <button id="specs-all">Todas</button>
+        <button id="specs-none">Limpar</button>
+      </div>
+      <div class="check-list" id="spec-list"></div>
+    </section>
 
-    <h2>Status</h2>
-    <div class="check-list" id="status-list"></div>
+    <section class="filter-group">
+      <div class="filter-head">
+        <h2>Mostrar</h2>
+      </div>
+      <div class="check-list" id="status-list"></div>
+    </section>
+
     <button id="reset-progress-btn" class="reset-btn">Reiniciar progresso</button>
   </aside>
 
   <main class="content">
     <div id="sync-error" class="sync-error" style="display:none"></div>
-    <div class="status-bar">
-      <div class="pool-info" id="pool-info">Carregando questões&hellip;</div>
-      <div class="global-stats" id="global-stats"></div>
-      <div class="score" id="score-box">Acertos: <span class="ok">0</span> &nbsp;|&nbsp; Erros: <span class="bad">0</span></div>
+
+    <div class="stats-row">
+      <div class="stat-card accent-blue">
+        <span class="stat-label">No filtro atual</span>
+        <span class="stat-value" id="pool-info">&mdash;</span>
+      </div>
+      <div class="stat-card accent-green">
+        <span class="stat-label">Progresso total</span>
+        <span class="stat-value" id="global-stats">&mdash;</span>
+      </div>
+      <div class="stat-card accent-yellow">
+        <span class="stat-label">Nesta sessão</span>
+        <span class="stat-value score" id="score-box"></span>
+      </div>
     </div>
 
     <div class="mode-row">
-      <button id="mode-random" class="active">Aleatório</button>
-      <button id="mode-sequential">Sequencial</button>
-      <button id="shuffle-btn" title="Embaralhar de novo">Embaralhar de novo</button>
+      <div class="segmented">
+        <button id="mode-random" class="active">Aleatório</button>
+        <button id="mode-sequential">Sequencial</button>
+      </div>
+      <button id="shuffle-btn" class="ghost-sm" title="Embaralhar de novo">Embaralhar</button>
     </div>
 
     <div id="empty-state" style="display:none">
-      Não há questões para os filtros selecionados. Tente ativar mais anos ou especialidades.
+      <div class="empty-icon" aria-hidden="true"></div>
+      <p id="empty-text">Selecione pelo menos um ano e uma especialidade para começar.</p>
     </div>
 
     <div class="card" id="question-card" style="display:none">
