@@ -68,12 +68,12 @@ header.top {
 }
 
 .brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--brand-flag);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  width: 36px;
+  height: 25px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
+  display: block;
 }
 
 .brand-text { display: flex; flex-direction: column; gap: 1px; }
@@ -627,11 +627,10 @@ main.content {
 #empty-state p { margin: 0; font-size: 14.5px; line-height: 1.55; max-width: 420px; }
 
 .empty-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
-  background: var(--brand-flag);
-  opacity: 0.85;
+  width: 62px;
+  height: 43px;
+  border-radius: 5px;
+  box-shadow: var(--shadow);
 }
 
 .card {
