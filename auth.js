@@ -4,6 +4,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
@@ -36,14 +37,18 @@ const appEl = document.getElementById("app");
 const userBarEl = document.getElementById("user-bar");
 const userEmailEl = document.getElementById("user-email");
 const errorEl = document.getElementById("auth-error");
+const successEl = document.getElementById("auth-success");
 const emailInput = document.getElementById("auth-email");
 const passwordInput = document.getElementById("auth-password");
+const passwordConfirmInput = document.getElementById("auth-password-confirm");
 const loginBtn = document.getElementById("auth-login-btn");
 const signupBtn = document.getElementById("auth-signup-btn");
+const forgotBtn = document.getElementById("auth-forgot-btn");
 const googleBtn = document.getElementById("auth-google-btn");
 const logoutBtn = document.getElementById("logout-btn");
 
 function showError(msg) {
+  successEl.style.display = "none";
   errorEl.textContent = msg;
   errorEl.style.display = "block";
 }
@@ -51,8 +56,17 @@ function clearError() {
   errorEl.style.display = "none";
   errorEl.textContent = "";
 }
+function showSuccess(msg) {
+  errorEl.style.display = "none";
+  successEl.textContent = msg;
+  successEl.style.display = "block";
+}
+function clearSuccess() {
+  successEl.style.display = "none";
+  successEl.textContent = "";
+}
 function setButtonsDisabled(disabled) {
-  [loginBtn, signupBtn, googleBtn].forEach((b) => { b.disabled = disabled; });
+  [loginBtn, signupBtn, googleBtn, forgotBtn].forEach((b) => { b.disabled = disabled; });
 }
 
 const ERROR_MESSAGES = {
@@ -66,6 +80,7 @@ const ERROR_MESSAGES = {
   "auth/too-many-requests": "Muitas tentativas. Espere um pouco e tente novamente.",
   "auth/popup-closed-by-user": "Login com Google cancelado.",
   "auth/network-request-failed": "Falha de rede. Verifique sua conexão.",
+  "auth/missing-email": "Digite seu e-mail no campo acima para recuperar a senha.",
 };
 function translateError(err) {
   return ERROR_MESSAGES[err && err.code] || "Ocorreu um erro. Tente novamente.";
@@ -73,6 +88,7 @@ function translateError(err) {
 
 loginBtn.addEventListener("click", async () => {
   clearError();
+  clearSuccess();
   const email = emailInput.value.trim();
   const password = passwordInput.value;
   if (!email || !password) { showError("Preencha e-mail e senha."); return; }
@@ -88,9 +104,18 @@ loginBtn.addEventListener("click", async () => {
 
 signupBtn.addEventListener("click", async () => {
   clearError();
+  clearSuccess();
   const email = emailInput.value.trim();
   const password = passwordInput.value;
-  if (!email || !password) { showError("Preencha e-mail e senha."); return; }
+  const passwordConfirm = passwordConfirmInput.value;
+  if (!email || !password || !passwordConfirm) {
+    showError("Preencha e-mail, senha e a confirmação de senha.");
+    return;
+  }
+  if (password !== passwordConfirm) {
+    showError("As senhas não coincidem. Digite a mesma senha nos dois campos.");
+    return;
+  }
   setButtonsDisabled(true);
   try {
     await createUserWithEmailAndPassword(auth, email, password);
@@ -101,8 +126,25 @@ signupBtn.addEventListener("click", async () => {
   }
 });
 
+forgotBtn.addEventListener("click", async () => {
+  clearError();
+  clearSuccess();
+  const email = emailInput.value.trim();
+  if (!email) { showError("Digite seu e-mail no campo acima para recuperar a senha."); return; }
+  setButtonsDisabled(true);
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showSuccess("Enviamos um e-mail para " + email + " com um link para redefinir sua senha.");
+  } catch (err) {
+    showError(translateError(err));
+  } finally {
+    setButtonsDisabled(false);
+  }
+});
+
 googleBtn.addEventListener("click", async () => {
   clearError();
+  clearSuccess();
   setButtonsDisabled(true);
   try {
     await signInWithPopup(auth, googleProvider);
@@ -127,6 +169,9 @@ welcomeStartBtn.addEventListener("click", () => {
   input.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter") { ev.preventDefault(); loginBtn.click(); }
   });
+});
+passwordConfirmInput.addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter") { ev.preventDefault(); signupBtn.click(); }
 });
 
 let appStarted = false;
