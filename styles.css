@@ -634,6 +634,31 @@ main.content {
   box-shadow: var(--shadow);
 }
 
+.empty-pix {
+  margin-top: 6px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: var(--ink-soft);
+  max-width: 440px;
+}
+.empty-pix-text {
+  font-size: 14px !important;
+  color: var(--text-dim);
+  margin-bottom: 14px !important;
+}
+.empty-pix-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.empty-pix-key {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--brand-green-dark);
+}
+
 .card {
   background: var(--panel);
   border: 1px solid var(--border);

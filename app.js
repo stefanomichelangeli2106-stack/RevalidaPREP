@@ -359,6 +359,9 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   document.getElementById("sidebar-pix-copy-btn").addEventListener("click", (ev) => {
     copyPixKey(ev.currentTarget, "sidebar-pix-key", "Copiar");
   });
+  document.getElementById("empty-pix-copy-btn").addEventListener("click", (ev) => {
+    copyPixKey(ev.currentTarget, "empty-pix-key", "Copiar chave");
+  });
 
   document.getElementById("submit-btn").addEventListener("click", submitAnswer);
   document.getElementById("skip-btn").addEventListener("click", nextQuestion);
