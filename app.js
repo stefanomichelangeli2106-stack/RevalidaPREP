@@ -15,6 +15,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     selectedLetter: null,
     sessionRight: 0,
     sessionWrong: 0,
+    answeredThisSession: 0,
   };
 
   const yearListEl = document.getElementById("year-list");
@@ -293,6 +294,11 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
       buildStatusFilter();
     }
 
+    state.answeredThisSession++;
+    if (state.answeredThisSession % 20 === 0) {
+      showDonationModal();
+    }
+
     document.querySelectorAll("#q-options .option").forEach(el => {
       el.classList.add("answered");
       const letter = el.dataset.letter;
@@ -324,6 +330,30 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     document.getElementById("submit-btn").textContent = "Próxima questão";
     document.getElementById("submit-btn").disabled = false;
   }
+
+  function showDonationModal() {
+    document.getElementById("donation-modal").style.display = "flex";
+  }
+  function hideDonationModal() {
+    document.getElementById("donation-modal").style.display = "none";
+  }
+  document.getElementById("donation-close-btn").addEventListener("click", hideDonationModal);
+  document.getElementById("donation-dismiss-btn").addEventListener("click", hideDonationModal);
+  document.getElementById("donation-modal").addEventListener("click", (ev) => {
+    if (ev.target.id === "donation-modal") hideDonationModal();
+  });
+  document.getElementById("donation-copy-btn").addEventListener("click", () => {
+    const key = document.getElementById("donation-pix-key").textContent;
+    const btn = document.getElementById("donation-copy-btn");
+    const restoreLabel = () => { btn.textContent = "Copiar chave"; };
+    navigator.clipboard.writeText(key).then(() => {
+      btn.textContent = "Copiado!";
+      setTimeout(restoreLabel, 2000);
+    }).catch(() => {
+      btn.textContent = "Copiado!";
+      setTimeout(restoreLabel, 2000);
+    });
+  });
 
   document.getElementById("submit-btn").addEventListener("click", submitAnswer);
   document.getElementById("skip-btn").addEventListener("click", nextQuestion);
