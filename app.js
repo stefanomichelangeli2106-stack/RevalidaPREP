@@ -342,10 +342,9 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   document.getElementById("donation-modal").addEventListener("click", (ev) => {
     if (ev.target.id === "donation-modal") hideDonationModal();
   });
-  document.getElementById("donation-copy-btn").addEventListener("click", () => {
-    const key = document.getElementById("donation-pix-key").textContent;
-    const btn = document.getElementById("donation-copy-btn");
-    const restoreLabel = () => { btn.textContent = "Copiar chave"; };
+  function copyPixKey(btn, keyElId, label) {
+    const key = document.getElementById(keyElId).textContent;
+    const restoreLabel = () => { btn.textContent = label; };
     navigator.clipboard.writeText(key).then(() => {
       btn.textContent = "Copiado!";
       setTimeout(restoreLabel, 2000);
@@ -353,6 +352,12 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
       btn.textContent = "Copiado!";
       setTimeout(restoreLabel, 2000);
     });
+  }
+  document.getElementById("donation-copy-btn").addEventListener("click", (ev) => {
+    copyPixKey(ev.currentTarget, "donation-pix-key", "Copiar chave");
+  });
+  document.getElementById("sidebar-pix-copy-btn").addEventListener("click", (ev) => {
+    copyPixKey(ev.currentTarget, "sidebar-pix-key", "Copiar");
   });
 
   document.getElementById("submit-btn").addEventListener("click", submitAnswer);

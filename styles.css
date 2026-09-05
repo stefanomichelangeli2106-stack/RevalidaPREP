@@ -949,3 +949,38 @@ button.ghost:disabled:hover {
 .donation-continue-btn {
   width: 100%;
 }
+
+.sidebar-pix {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-pix-text {
+  flex: 1;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+.sidebar-pix-text strong { color: var(--text); }
+
+.sidebar-pix-copy {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--panel);
+  cursor: pointer;
+  color: var(--text-dim);
+  transition: border-color 0.12s, color 0.12s;
+}
+.sidebar-pix-copy:hover {
+  border-color: var(--brand-green);
+  color: var(--brand-green-dark);
+}
