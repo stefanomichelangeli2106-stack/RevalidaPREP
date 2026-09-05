@@ -837,6 +837,15 @@ button.ghost:hover {
   color: var(--brand-blue);
   background: rgba(26, 61, 143, 0.06);
 }
+button.ghost:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+button.ghost:disabled:hover {
+  border-color: var(--border);
+  color: var(--text-dim);
+  background: transparent;
+}
 
 .annulled-note {
   font-size: 13.5px;

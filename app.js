@@ -184,9 +184,25 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     scoreBoxEl.innerHTML = '<span class="ok">' + state.sessionRight + ' certas</span><span class="bad">' + state.sessionWrong + ' erradas</span>';
   }
 
+  function showAtPointer() {
+    emptyEl.style.display = "none";
+    cardEl.style.display = "block";
+    state.current = state.queue[state.pointer];
+    state.answered = false;
+    state.selectedLetter = null;
+    renderQuestion();
+    updatePrevButton();
+  }
+
+  function updatePrevButton() {
+    const prevBtn = document.getElementById("prev-btn");
+    if (prevBtn) prevBtn.disabled = state.pointer <= 0;
+  }
+
   function nextQuestion() {
     state.pointer++;
     if (state.pointer >= state.queue.length) {
+      state.pointer = state.queue.length - 1;
       cardEl.style.display = "none";
       emptyEl.style.display = "flex";
       if (state.queue.length > 0) {
@@ -198,12 +214,13 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
       }
       return;
     }
-    emptyEl.style.display = "none";
-    cardEl.style.display = "block";
-    state.current = state.queue[state.pointer];
-    state.answered = false;
-    state.selectedLetter = null;
-    renderQuestion();
+    showAtPointer();
+  }
+
+  function prevQuestion() {
+    if (state.pointer <= 0) return;
+    state.pointer--;
+    showAtPointer();
   }
 
   function renderQuestion() {
@@ -310,6 +327,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
 
   document.getElementById("submit-btn").addEventListener("click", submitAnswer);
   document.getElementById("skip-btn").addEventListener("click", nextQuestion);
+  document.getElementById("prev-btn").addEventListener("click", prevQuestion);
   document.getElementById("shuffle-btn").addEventListener("click", refreshPool);
 
   document.getElementById("reset-progress-btn").addEventListener("click", () => {
