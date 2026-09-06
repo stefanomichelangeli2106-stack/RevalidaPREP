@@ -1,5 +1,9 @@
 window.initRevalidaApp = function (initialProgress, onSaveProgress) {
-  const ALL_QUESTIONS = (window.REVALIDA_QUESTIONS || []).slice();
+  const SOURCES = {
+    oficial: (window.REVALIDA_QUESTIONS || []).slice(),
+    banco: (window.BANCO_QUESTIONS || []).slice(),
+  };
+  let ALL_QUESTIONS = SOURCES.oficial;
 
   let progress = initialProgress || {};
   function saveProgress(p) {
@@ -7,6 +11,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   }
 
   const state = {
+    source: "oficial",
     mode: "random",
     queue: [],
     pointer: -1,
@@ -34,22 +39,30 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     return Array.from(new Set(arr)).sort();
   }
 
-  const editionLabels = {};
-  ALL_QUESTIONS.forEach(q => { editionLabels[q.edition_label] = (editionLabels[q.edition_label] || 0) + 1; });
-  const editions = Object.keys(editionLabels).sort((a, b) => {
-    const qa = ALL_QUESTIONS.find(q => q.edition_label === a);
-    const qb = ALL_QUESTIONS.find(q => q.edition_label === b);
-    return (qa.year - qb.year) || a.localeCompare(b);
-  });
-
-  const specialtyCounts = {};
-  ALL_QUESTIONS.forEach(q => { specialtyCounts[q.specialty] = (specialtyCounts[q.specialty] || 0) + 1; });
-  const specialties = uniqueSorted(Object.keys(specialtyCounts));
-
-  // Os filtros de conteúdo começam vazios: o usuário escolhe o que quer praticar.
+  let editionLabels = {};
+  let editions = [];
+  let specialtyCounts = {};
+  let specialties = [];
   const activeYears = new Set();
   const activeSpecs = new Set();
   const activeStatus = new Set(["nueva", "acertada", "fallada"]);
+
+  function rebuildDerivedData() {
+    editionLabels = {};
+    ALL_QUESTIONS.forEach(q => { editionLabels[q.edition_label] = (editionLabels[q.edition_label] || 0) + 1; });
+    editions = Object.keys(editionLabels).sort((a, b) => {
+      const qa = ALL_QUESTIONS.find(q => q.edition_label === a);
+      const qb = ALL_QUESTIONS.find(q => q.edition_label === b);
+      return ((qa.year || 0) - (qb.year || 0)) || a.localeCompare(b);
+    });
+
+    specialtyCounts = {};
+    ALL_QUESTIONS.forEach(q => { specialtyCounts[q.specialty] = (specialtyCounts[q.specialty] || 0) + 1; });
+    specialties = uniqueSorted(Object.keys(specialtyCounts));
+
+    activeYears.clear();
+    activeSpecs.clear();
+  }
 
   function updateFilterBadges() {
     yearBadgeEl.textContent = activeYears.size;
@@ -119,12 +132,14 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   }
 
   function updateGlobalStats() {
-    const answered = Object.keys(progress).length;
+    const relevantIds = new Set(ALL_QUESTIONS.map(q => q.id));
+    const answeredIds = Object.keys(progress).filter(id => relevantIds.has(id));
+    const answered = answeredIds.length;
     if (answered === 0) {
       globalStatsEl.textContent = "Sem respostas ainda";
       return;
     }
-    const correct = Object.values(progress).filter(r => r.correct).length;
+    const correct = answeredIds.filter(id => progress[id].correct).length;
     const pct = Math.round((correct / answered) * 100);
     globalStatsEl.textContent = answered + " respondidas · " + pct + "% de acerto";
   }
@@ -418,13 +433,42 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   document.getElementById("specs-all").addEventListener("click", () => { specialties.forEach(s => activeSpecs.add(s)); buildCheckList(specListEl, specialties, activeSpecs, computeSpecialtyCounts(), refreshPool); refreshPool(); });
   document.getElementById("specs-none").addEventListener("click", () => { activeSpecs.clear(); buildCheckList(specListEl, specialties, activeSpecs, computeSpecialtyCounts(), refreshPool); refreshPool(); });
 
-  buildCheckList(yearListEl, editions, activeYears, editionLabels, refreshPool);
-  buildCheckList(specListEl, specialties, activeSpecs, computeSpecialtyCounts(), refreshPool);
-  buildStatusFilter();
+  function renderFilters() {
+    buildCheckList(yearListEl, editions, activeYears, editionLabels, refreshPool);
+    buildCheckList(specListEl, specialties, activeSpecs, computeSpecialtyCounts(), refreshPool);
+    buildStatusFilter();
+    updateFilterBadges();
+    updateSpecialtyCounts();
+  }
+
+  function switchSource(source) {
+    if (state.source === source) return;
+    state.source = source;
+    ALL_QUESTIONS = SOURCES[source];
+    document.getElementById("source-oficial").classList.toggle("active", source === "oficial");
+    document.getElementById("source-banco").classList.toggle("active", source === "banco");
+    state.sessionRight = 0;
+    state.sessionWrong = 0;
+    updateScoreBox();
+    rebuildDerivedData();
+    renderFilters();
+    updateGlobalStats();
+    if (ALL_QUESTIONS.length === 0) {
+      poolInfoEl.textContent = "Sem questões carregadas";
+      cardEl.style.display = "none";
+      emptyEl.style.display = "flex";
+      emptyTextEl.textContent = "Este banco de questões ainda não tem conteúdo publicado. Volte em breve.";
+    } else {
+      refreshPool();
+    }
+  }
+  document.getElementById("source-oficial").addEventListener("click", () => switchSource("oficial"));
+  document.getElementById("source-banco").addEventListener("click", () => switchSource("banco"));
+
+  rebuildDerivedData();
+  renderFilters();
   updateScoreBox();
   updateGlobalStats();
-  updateFilterBadges();
-  updateSpecialtyCounts();
 
   if (ALL_QUESTIONS.length === 0) {
     poolInfoEl.textContent = "Sem questões carregadas";
