@@ -20,6 +20,12 @@
 <meta name="twitter:description" content="Pratique para o Revalida com questões de provas anteriores do INEP, organizadas por especialidade e por ano, com explicação de cada alternativa.">
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#0f9b4e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RevalidaPrep">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -204,6 +210,7 @@
         <button id="mode-random" class="active">Aleatório</button>
         <button id="mode-sequential">Sequencial</button>
       </div>
+      <button id="fav-filter-btn" class="ghost-sm" title="Mostrar somente as questões favoritas">☆ Favoritas</button>
       <button id="shuffle-btn" class="ghost-sm" title="Embaralhar de novo">Embaralhar</button>
     </div>
 
@@ -225,6 +232,7 @@
         <span class="pill alt" id="q-area"></span>
         <span class="pill alt" id="q-specialty"></span>
         <span class="pill alt" id="q-number"></span>
+        <button id="fav-btn" class="fav-btn" title="Marcar questão como favorita">☆</button>
       </div>
       <div class="stem" id="q-stem"></div>
       <div class="q-images" id="q-images" style="display:none"></div>
@@ -279,5 +287,12 @@
 <script src="data/banco.js"></script>
 <script src="app.js"></script>
 <script type="module" src="auth.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>
