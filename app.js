@@ -408,13 +408,38 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
       messageEl.focus();
       return;
     }
-    const email = document.getElementById("feedback-email").value.trim();
-    const bodyLines = [];
-    if (email) bodyLines.push("E-mail para contato: " + email, "");
-    bodyLines.push(message);
-    const subject = encodeURIComponent("RevalidaPrep - Sugestão/Problema");
-    const body = encodeURIComponent(bodyLines.join("\n"));
-    window.location.href = "mailto:revalidaprep@gmail.com?subject=" + subject + "&body=" + body;
+    const emailEl = document.getElementById("feedback-email");
+    const email = emailEl.value.trim();
+    const btn = document.getElementById("feedback-send-btn");
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
+    const payload = { message: message, page: "RevalidaPrep" };
+    if (email) payload.email = email;
+    fetch("https://formspree.io/f/mbgjppkr", {
+      method: "POST",
+      headers: { "Accept": "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then((res) => {
+      if (res.ok) {
+        btn.textContent = "Enviado!";
+        messageEl.value = "";
+        emailEl.value = "";
+        setTimeout(() => {
+          hideFeedbackModal();
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+        }, 1200);
+      } else {
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+        alert("Não foi possível enviar sua mensagem agora. Tente novamente em instantes.");
+      }
+    }).catch(() => {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      alert("Não foi possível enviar sua mensagem. Verifique sua conexão e tente novamente.");
+    });
   });
 
   document.getElementById("submit-btn").addEventListener("click", submitAnswer);
