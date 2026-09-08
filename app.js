@@ -1,4 +1,4 @@
-window.initRevalidaApp = function (initialProgress, onSaveProgress) {
+window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpecialtyStats, onSaveSpecialtyStats) {
   const SOURCES = {
     oficial: (window.REVALIDA_QUESTIONS || []).slice(),
     banco: (window.BANCO_QUESTIONS || []).slice(),
@@ -8,6 +8,19 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   let progress = initialProgress || {};
   function saveProgress(p) {
     if (typeof onSaveProgress === "function") onSaveProgress(p);
+  }
+
+  // Histórico de acertos/erros por especialidade. Independente de "progress":
+  // não é apagado por "Reiniciar progresso", pois serve para o aluno enxergar,
+  // ao longo do tempo, em quais temas precisa focar mais.
+  const specialtyStats = initialSpecialtyStats || {};
+  function saveSpecialtyStats() {
+    if (typeof onSaveSpecialtyStats === "function") onSaveSpecialtyStats(specialtyStats);
+  }
+  function recordSpecialtyStat(specialty, isCorrect) {
+    if (!specialtyStats[specialty]) specialtyStats[specialty] = { correct: 0, wrong: 0 };
+    if (isCorrect) specialtyStats[specialty].correct++; else specialtyStats[specialty].wrong++;
+    saveSpecialtyStats();
   }
 
   const state = {
@@ -316,6 +329,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
       else { state.sessionWrong++; sessionCounted.set(q.id, "wrong"); }
       progress[q.id] = { correct: isCorrect, letter: state.selectedLetter, ts: Date.now() };
       saveProgress(progress);
+      recordSpecialtyStat(q.specialty, isCorrect);
       updateScoreBox();
       updateGlobalStats();
       buildStatusFilter();
@@ -388,6 +402,42 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   });
   document.getElementById("empty-pix-copy-btn").addEventListener("click", (ev) => {
     copyPixKey(ev.currentTarget, "empty-pix-key", "Copiar chave");
+  });
+
+  function renderSpecialtyStatsList() {
+    const listEl = document.getElementById("stats-list");
+    const entries = Object.keys(specialtyStats).map(spec => {
+      const s = specialtyStats[spec];
+      const total = s.correct + s.wrong;
+      const pct = total > 0 ? Math.round((s.correct / total) * 100) : 0;
+      return { spec, total, correct: s.correct, wrong: s.wrong, pct };
+    }).filter(e => e.total > 0);
+
+    if (entries.length === 0) {
+      listEl.innerHTML = '<p class="stats-empty">Você ainda não respondeu nenhuma questão. Comece a praticar para ver aqui seu desempenho por especialidade.</p>';
+      return;
+    }
+    entries.sort((a, b) => a.pct - b.pct);
+    listEl.innerHTML = entries.map(e => {
+      let color = "var(--brand-green)";
+      if (e.pct < 40) color = "var(--incorrect)";
+      else if (e.pct < 70) color = "var(--brand-yellow)";
+      return '<div class="stats-row-item">' +
+        '<div class="stats-row-top"><span class="stats-row-name">' + escapeHtml(e.spec) + '</span><span class="stats-row-pct">' + e.pct + '%</span></div>' +
+        '<div class="stats-row-bar"><div class="stats-row-fill" style="width:' + e.pct + '%;background:' + color + ';"></div></div>' +
+        '<div class="stats-row-count">' + e.correct + ' de ' + e.total + ' corretas</div>' +
+        '</div>';
+    }).join("");
+  }
+  document.getElementById("stats-open-btn").addEventListener("click", () => {
+    renderSpecialtyStatsList();
+    document.getElementById("stats-modal").style.display = "flex";
+  });
+  document.getElementById("stats-close-btn").addEventListener("click", () => {
+    document.getElementById("stats-modal").style.display = "none";
+  });
+  document.getElementById("stats-modal").addEventListener("click", (ev) => {
+    if (ev.target.id === "stats-modal") document.getElementById("stats-modal").style.display = "none";
   });
 
   function showFeedbackModal() {

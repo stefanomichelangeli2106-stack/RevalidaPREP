@@ -170,6 +170,7 @@
       <div class="check-list" id="status-list"></div>
     </section>
 
+    <button id="stats-open-btn" class="reset-btn stats-open-btn">Desempenho por especialidade</button>
     <button id="reset-progress-btn" class="reset-btn">Reiniciar progresso</button>
 
     <div class="sidebar-pix">
@@ -248,6 +249,16 @@
         <button id="donation-copy-btn" class="ghost-sm">Copiar chave</button>
       </div>
       <button id="donation-dismiss-btn" class="primary donation-continue-btn">Continuar estudando</button>
+    </div>
+  </div>
+
+  <div id="stats-modal" class="donation-overlay" style="display:none">
+    <div class="donation-card stats-card">
+      <button id="stats-close-btn" class="donation-close" aria-label="Fechar">&times;</button>
+      <div class="donation-stripe"></div>
+      <h3>Desempenho por especialidade</h3>
+      <p>Baseado em todas as respostas que você já deu (provas oficiais e banco de questões, somadas). Esse histórico não é apagado quando você toca em "Reiniciar progresso" — ele existe para te ajudar a enxergar, ao longo do tempo, quais temas precisam de mais atenção.</p>
+      <div id="stats-list" class="stats-list"></div>
     </div>
   </div>
 

@@ -1035,6 +1035,64 @@ button.ghost:disabled:hover {
   margin-top: 10px;
 }
 
+.stats-open-btn {
+  margin-top: 10px;
+}
+
+.stats-card {
+  max-width: 460px;
+  text-align: left;
+}
+.stats-card h3 { text-align: center; }
+.stats-card > p { text-align: center; }
+
+.stats-list {
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.stats-empty {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  text-align: center;
+  margin: 10px 0;
+}
+
+.stats-row-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stats-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  font-weight: 700;
+}
+.stats-row-name { color: var(--text); }
+.stats-row-pct { color: var(--text-dim); }
+.stats-row-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 20px;
+  background: var(--ink-soft);
+  overflow: hidden;
+}
+.stats-row-fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.2s;
+}
+.stats-row-count {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
 .sidebar-pix {
   margin-top: 10px;
   padding: 10px 12px;

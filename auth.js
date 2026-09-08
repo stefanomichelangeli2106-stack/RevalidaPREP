@@ -224,20 +224,32 @@ onAuthStateChanged(auth, async (user) => {
 
   const userRef = doc(db, "users", user.uid);
   let progressData = {};
+  let specialtyStatsData = {};
   try {
     const snap = await getDoc(userRef);
     if (snap.exists()) {
-      progressData = (snap.data() && snap.data().progress) || {};
+      const data = snap.data() || {};
+      progressData = data.progress || {};
+      specialtyStatsData = data.specialtyStats || {};
     } else {
-      await setDoc(userRef, { email: user.email || null, createdAt: Date.now(), progress: {} });
+      await setDoc(userRef, { email: user.email || null, createdAt: Date.now(), progress: {}, specialtyStats: {} });
     }
   } catch (err) {
     console.error("Erro ao carregar progresso do Firestore:", err);
   }
 
-  window.initRevalidaApp(progressData, function (newProgress) {
-    setDoc(userRef, { progress: newProgress }, { merge: true }).catch((err) => {
-      console.error("Erro ao salvar progresso no Firestore:", err);
-    });
-  });
+  window.initRevalidaApp(
+    progressData,
+    function (newProgress) {
+      setDoc(userRef, { progress: newProgress }, { merge: true }).catch((err) => {
+        console.error("Erro ao salvar progresso no Firestore:", err);
+      });
+    },
+    specialtyStatsData,
+    function (newStats) {
+      setDoc(userRef, { specialtyStats: newStats }, { merge: true }).catch((err) => {
+        console.error("Erro ao salvar estatísticas por especialidade no Firestore:", err);
+      });
+    }
+  );
 });
