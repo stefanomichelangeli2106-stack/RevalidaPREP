@@ -176,6 +176,8 @@
       <span class="sidebar-pix-text">Site gratuito. Apoie via PIX: <strong id="sidebar-pix-key">revalidaprep@gmail.com</strong></span>
       <button id="sidebar-pix-copy-btn" class="sidebar-pix-copy" title="Copiar chave PIX">Copiar</button>
     </div>
+
+    <button id="feedback-open-btn" class="reset-btn feedback-open-btn">Sugestões / Reportar problema</button>
   </aside>
 
   <main class="content">
@@ -246,6 +248,18 @@
         <button id="donation-copy-btn" class="ghost-sm">Copiar chave</button>
       </div>
       <button id="donation-dismiss-btn" class="primary donation-continue-btn">Continuar estudando</button>
+    </div>
+  </div>
+
+  <div id="feedback-modal" class="donation-overlay" style="display:none">
+    <div class="donation-card">
+      <button id="feedback-close-btn" class="donation-close" aria-label="Fechar">&times;</button>
+      <div class="donation-stripe"></div>
+      <h3>Sugestões e reporte de problemas</h3>
+      <p>Encontrou um bug ou tem uma ideia para melhorar o RevalidaPrep? Escreva abaixo — ao enviar, seu app de e-mail vai abrir com a mensagem pronta para revalidaprep@gmail.com.</p>
+      <input id="feedback-email" class="feedback-input" type="email" placeholder="Seu e-mail (opcional, para respondermos)">
+      <textarea id="feedback-message" class="feedback-textarea" rows="5" placeholder="Descreva o problema ou sua sugestão..."></textarea>
+      <button id="feedback-send-btn" class="primary donation-continue-btn">Enviar</button>
     </div>
   </div>
 </div>

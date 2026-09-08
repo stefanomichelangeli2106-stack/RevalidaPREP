@@ -23,6 +23,11 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     answeredThisSession: 0,
   };
 
+  // Guarda o resultado (certa/errada) já contabilizado nesta sessão para cada questão,
+  // para que responder a mesma questão de novo (ex.: após usar "Questão anterior")
+  // ajuste o placar em vez de contar como uma resposta nova.
+  let sessionCounted = new Map();
+
   const yearListEl = document.getElementById("year-list");
   const specListEl = document.getElementById("spec-list");
   const statusListEl = document.getElementById("status-list");
@@ -197,7 +202,10 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
   }
 
   function updateScoreBox() {
-    scoreBoxEl.innerHTML = '<span class="ok">' + state.sessionRight + ' certas</span><span class="bad">' + state.sessionWrong + ' erradas</span>';
+    const total = state.sessionRight + state.sessionWrong;
+    const rightPct = total > 0 ? Math.round((state.sessionRight / total) * 100) : 0;
+    const wrongPct = total > 0 ? Math.round((state.sessionWrong / total) * 100) : 0;
+    scoreBoxEl.innerHTML = '<span class="ok">' + state.sessionRight + ' certas (' + rightPct + '%)</span><span class="bad">' + state.sessionWrong + ' erradas (' + wrongPct + '%)</span>';
   }
 
   function showAtPointer() {
@@ -301,7 +309,11 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     const isCorrect = hasOfficialAnswer && !isAnnulled && state.selectedLetter === q.correct;
 
     if (!isAnnulled) {
-      if (isCorrect) { state.sessionRight++; } else { state.sessionWrong++; }
+      const prevResult = sessionCounted.get(q.id);
+      if (prevResult === "correct") state.sessionRight--;
+      else if (prevResult === "wrong") state.sessionWrong--;
+      if (isCorrect) { state.sessionRight++; sessionCounted.set(q.id, "correct"); }
+      else { state.sessionWrong++; sessionCounted.set(q.id, "wrong"); }
       progress[q.id] = { correct: isCorrect, letter: state.selectedLetter, ts: Date.now() };
       saveProgress(progress);
       updateScoreBox();
@@ -378,6 +390,33 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     copyPixKey(ev.currentTarget, "empty-pix-key", "Copiar chave");
   });
 
+  function showFeedbackModal() {
+    document.getElementById("feedback-modal").style.display = "flex";
+  }
+  function hideFeedbackModal() {
+    document.getElementById("feedback-modal").style.display = "none";
+  }
+  document.getElementById("feedback-open-btn").addEventListener("click", showFeedbackModal);
+  document.getElementById("feedback-close-btn").addEventListener("click", hideFeedbackModal);
+  document.getElementById("feedback-modal").addEventListener("click", (ev) => {
+    if (ev.target.id === "feedback-modal") hideFeedbackModal();
+  });
+  document.getElementById("feedback-send-btn").addEventListener("click", () => {
+    const messageEl = document.getElementById("feedback-message");
+    const message = messageEl.value.trim();
+    if (!message) {
+      messageEl.focus();
+      return;
+    }
+    const email = document.getElementById("feedback-email").value.trim();
+    const bodyLines = [];
+    if (email) bodyLines.push("E-mail para contato: " + email, "");
+    bodyLines.push(message);
+    const subject = encodeURIComponent("RevalidaPrep - Sugestão/Problema");
+    const body = encodeURIComponent(bodyLines.join("\n"));
+    window.location.href = "mailto:revalidaprep@gmail.com?subject=" + subject + "&body=" + body;
+  });
+
   document.getElementById("submit-btn").addEventListener("click", submitAnswer);
   document.getElementById("skip-btn").addEventListener("click", nextQuestion);
   document.getElementById("prev-btn").addEventListener("click", prevQuestion);
@@ -389,6 +428,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     saveProgress(progress);
     state.sessionRight = 0;
     state.sessionWrong = 0;
+    sessionCounted.clear();
     updateScoreBox();
     updateGlobalStats();
     buildStatusFilter();
@@ -449,6 +489,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress) {
     document.getElementById("source-banco").classList.toggle("active", source === "banco");
     state.sessionRight = 0;
     state.sessionWrong = 0;
+    sessionCounted.clear();
     updateScoreBox();
     rebuildDerivedData();
     renderFilters();
