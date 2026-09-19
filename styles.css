@@ -715,7 +715,28 @@ main.content {
   display: flex;
   gap: 7px;
   flex-wrap: wrap;
+  align-items: center;
   margin-bottom: 18px;
+}
+
+.fav-btn {
+  margin-left: auto;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-dim);
+  padding: 2px 4px;
+  transition: color 0.15s, transform 0.1s;
+}
+.fav-btn:hover { transform: scale(1.15); }
+.fav-btn.active { color: var(--brand-yellow); }
+
+#fav-filter-btn.active {
+  background: var(--brand-yellow);
+  border-color: var(--brand-yellow);
+  color: #241b3d;
 }
 
 .pill {

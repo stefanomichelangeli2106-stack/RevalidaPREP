@@ -225,14 +225,16 @@ onAuthStateChanged(auth, async (user) => {
   const userRef = doc(db, "users", user.uid);
   let progressData = {};
   let specialtyStatsData = {};
+  let favoritesData = {};
   try {
     const snap = await getDoc(userRef);
     if (snap.exists()) {
       const data = snap.data() || {};
       progressData = data.progress || {};
       specialtyStatsData = data.specialtyStats || {};
+      favoritesData = data.favorites || {};
     } else {
-      await setDoc(userRef, { email: user.email || null, createdAt: Date.now(), progress: {}, specialtyStats: {} });
+      await setDoc(userRef, { email: user.email || null, createdAt: Date.now(), progress: {}, specialtyStats: {}, favorites: {} });
     }
   } catch (err) {
     console.error("Erro ao carregar progresso do Firestore:", err);
@@ -249,6 +251,12 @@ onAuthStateChanged(auth, async (user) => {
     function (newStats) {
       setDoc(userRef, { specialtyStats: newStats }, { merge: true }).catch((err) => {
         console.error("Erro ao salvar estatísticas por especialidade no Firestore:", err);
+      });
+    },
+    favoritesData,
+    function (newFavorites) {
+      setDoc(userRef, { favorites: newFavorites }, { merge: true }).catch((err) => {
+        console.error("Erro ao salvar favoritos no Firestore:", err);
       });
     }
   );
