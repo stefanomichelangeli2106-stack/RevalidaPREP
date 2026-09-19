@@ -1,6 +1,6 @@
 {
-  "name": "RevalidaPrep",
-  "short_name": "RevalidaPrep",
+  "name": "Revalia",
+  "short_name": "Revalia",
   "description": "Pratique para o Revalida com questões de provas anteriores do INEP, organizadas por especialidade e por ano.",
   "start_url": "/",
   "scope": "/",

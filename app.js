@@ -1,4 +1,4 @@
-window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpecialtyStats, onSaveSpecialtyStats) {
+window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpecialtyStats, onSaveSpecialtyStats, initialFavorites, onSaveFavorites) {
   const SOURCES = {
     oficial: (window.REVALIDA_QUESTIONS || []).slice(),
     banco: (window.BANCO_QUESTIONS || []).slice(),
@@ -23,6 +23,29 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpeci
     saveSpecialtyStats();
   }
 
+  // Questões marcadas como favoritas pelo aluno, independente de ter acertado ou errado.
+  // Também não é apagado por "Reiniciar progresso".
+  const favorites = initialFavorites || {};
+  function saveFavorites() {
+    if (typeof onSaveFavorites === "function") onSaveFavorites(favorites);
+  }
+  function isFavorite(id) {
+    return !!favorites[id];
+  }
+  function toggleFavorite(id) {
+    if (favorites[id]) delete favorites[id]; else favorites[id] = true;
+    saveFavorites();
+    updateFavButton();
+  }
+  function updateFavButton() {
+    const btn = document.getElementById("fav-btn");
+    if (!btn || !state.current) return;
+    const active = isFavorite(state.current.id);
+    btn.classList.toggle("active", active);
+    btn.textContent = active ? "★" : "☆";
+    btn.title = active ? "Remover dos favoritos" : "Marcar questão como favorita";
+  }
+
   const state = {
     source: "oficial",
     mode: "random",
@@ -34,6 +57,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpeci
     sessionRight: 0,
     sessionWrong: 0,
     answeredThisSession: 0,
+    onlyFavorites: false,
   };
 
   // Guarda o resultado (certa/errada) já contabilizado nesta sessão para cada questão,
@@ -168,7 +192,8 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpeci
     const filtered = ALL_QUESTIONS.filter(q =>
       activeYears.has(q.edition_label) &&
       activeSpecs.has(q.specialty) &&
-      activeStatus.has(statusOf(q))
+      activeStatus.has(statusOf(q)) &&
+      (!state.onlyFavorites || isFavorite(q.id))
     );
     state.queue = state.mode === "random" ? shuffle(filtered.slice()) : filtered.slice();
     state.pointer = -1;
@@ -229,6 +254,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpeci
     state.selectedLetter = null;
     renderQuestion();
     updatePrevButton();
+    updateFavButton();
   }
 
   function updatePrevButton() {
@@ -246,6 +272,8 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpeci
         emptyTextEl.textContent = "Você terminou todas as questões deste filtro. Toque em \"Embaralhar\" para repetir a rodada.";
       } else if (activeYears.size === 0 || activeSpecs.size === 0) {
         emptyTextEl.textContent = "Selecione pelo menos um ano e uma especialidade na barra lateral para começar a praticar.";
+      } else if (state.onlyFavorites) {
+        emptyTextEl.textContent = "Você ainda não marcou nenhuma questão como favorita dentro deste filtro. Toque na estrela ☆ ao lado do número da questão para favoritá-la.";
       } else {
         emptyTextEl.textContent = "Não há questões para os filtros selecionados. Tente ativar mais anos, mais especialidades ou outro status em \"Mostrar\".";
       }
@@ -464,7 +492,7 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpeci
     const originalLabel = btn.textContent;
     btn.disabled = true;
     btn.textContent = "Enviando...";
-    const payload = { message: message, page: "RevalidaPrep" };
+    const payload = { message: message, page: "Revalia" };
     if (email) payload.email = email;
     fetch("https://formspree.io/f/mbgjppkr", {
       method: "POST",
@@ -496,6 +524,15 @@ window.initRevalidaApp = function (initialProgress, onSaveProgress, initialSpeci
   document.getElementById("skip-btn").addEventListener("click", nextQuestion);
   document.getElementById("prev-btn").addEventListener("click", prevQuestion);
   document.getElementById("shuffle-btn").addEventListener("click", refreshPool);
+  document.getElementById("fav-btn").addEventListener("click", () => {
+    if (!state.current) return;
+    toggleFavorite(state.current.id);
+  });
+  document.getElementById("fav-filter-btn").addEventListener("click", () => {
+    state.onlyFavorites = !state.onlyFavorites;
+    document.getElementById("fav-filter-btn").classList.toggle("active", state.onlyFavorites);
+    refreshPool();
+  });
 
   document.getElementById("reset-progress-btn").addEventListener("click", () => {
     if (!confirm("Isso vai apagar todo o seu progresso salvo (acertos/erros de todas as edições). Deseja continuar?")) return;
